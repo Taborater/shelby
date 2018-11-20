@@ -15,9 +15,6 @@ Usage example:
     full_df, target_col, test_start_index = shelby.basics.train_test_stack(df_train, df_test, 'SalePrice')
     ``
 
-Todo:
-    * Upgrade separate cols: add case4 [dtype != 'object' and #unique_vals(col) < unique_thresh].
-
 """
 import pandas as pd
 
@@ -45,19 +42,23 @@ def separate_cols(df, unique_thresh=10, return_probably_cat=True):
     probably_cat = []
     num_cols = []
 
-    # Iterate through names of all columns.
+    # Iterate through names of all columns
     for col in df.columns:
 
-        # Case1: categorical column.
-        if df[col].dtype == 'object' and df[col].nunique() <= unique_thresh:
+        # Case1: categorical column
+        if df[col].dtype == 'O' and df[col].nunique() <= unique_thresh:
             cat_cols.append(col)
 
-        # Case2: probably categorical column.
-        if df[col].dtype == 'object' and df[col].nunique() > unique_thresh:
+        # Case2: probably categorical column
+        elif df[col].dtype == 'O' and df[col].nunique() > unique_thresh:
             probably_cat.append(col)
 
-        # Case3: number column.
-        if df[col].dtype != 'object':
+        # Case3: number column which is probably categorical
+        elif df[col].dtype != 'O' and df[col].nunique() < unique_thresh:
+            probably_cat.append(col)
+
+        # Case4: number column
+        else:
             num_cols.append(col)
 
     # Return 3 or 2 subsets
