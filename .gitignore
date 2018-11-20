@@ -4,3 +4,7 @@ __pycache__/
 # Dealing with macOS 
 .DS_store
 
+# nb for testing
+test.ipynb
+.ipynb_checkpoints/
+test_data/
