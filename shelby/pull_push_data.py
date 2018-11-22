@@ -13,6 +13,9 @@ Usage example:
 	# writing
 	shelby.pull_push_data.write_data(y_pred, index_col='Id', fname='predicted', sample_path='sample.csv')
 	``
+
+Todo:
+	* Add check if pred dir exists (if no - create)
 """
 import pandas as pd
 import os
