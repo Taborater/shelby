@@ -13,12 +13,14 @@ This module contains functions and custom estimators (based on sklearn Mixins) f
 Todo:
     * Extend model_validator with different cv strategies (stratified and etc.).
     * Use model_validator as grid_search_model_tunner cv_strategy.
+    * get_oofs as custom estimators for easy validation
 """
 
 from sklearn.model_selection import GridSearchCV, cross_val_score, KFold
 from sklearn.metrics import make_scorer
 from sklearn.base import RegressorMixin, TransformerMixin, BaseEstimator
 import numpy as np
+import pandas as pd
 
 
 def grid_search_model_tunner(estimator, X, y, cv_strategy, metric, params, verbose=False):
@@ -129,7 +131,7 @@ def get_oof_array(estimators_array, X_train, y_train, X_test, cv_strategy):
     return oof_train_array, oof_test_array
 
 
-def model_validator(estimator, X, y, metric, seeds, n_splits=5, n_loops=50, verbose=False):
+def model_validator(estimator, X, y, metric, seeds, X_holdout=None, y_holdout=None, n_splits=5, n_loops=5, verbose=False):
     """Model n_loops x n_folds validation.
 
     Args:
@@ -138,6 +140,8 @@ def model_validator(estimator, X, y, metric, seeds, n_splits=5, n_loops=50, verb
         y (numpy ndarray): labels corresponding to X.
         metric (func): metric func(y_pred, y_true) -> score (float).
         seeds (list / numpy ndarray): list of random seeds, for each loop of n_loops.
+        X_holdout (numpy ndarray): array for holdout score (default None).
+        y_holdout (numpy ndarray): labels corresponding to X_holdout (default None).
         n_splits (int): number of splits in cross-validation.
         n_loops (int): number of cross-validation loops.
         verbose (bool): if True - print logs.
@@ -156,10 +160,20 @@ def model_validator(estimator, X, y, metric, seeds, n_splits=5, n_loops=50, verb
 
     # Init array for scores
     all_scores = []
+    holdout_score = None
     for i in range(n_loops):
         cv = KFold(n_splits, shuffle=True, random_state=seeds[i])
         scores = cross_val_score(estimator, X, y, scoring=scorer, cv=cv)
         all_scores.append(scores)
+
+    # If holdout set provided - compute score on it
+    if not(X_holdout is None) and not(y_holdout is None):
+        estimator.fit(X, y)
+        holdout_pred = estimator.predict(X_holdout)
+        holdout_score = metric(y_holdout, holdout_pred)
+
+        if verbose:
+            print(f'holdout score: {holdout_score}')
 
     # Create array from list and eval statistics.
     all_scores = np.array(all_scores)
@@ -167,12 +181,13 @@ def model_validator(estimator, X, y, metric, seeds, n_splits=5, n_loops=50, verb
     std_score = all_scores.std()
 
     if verbose:
-        print(f'Scores mean: {mean_score}\nScores std: {std_score}')
+        print(f'cv mean: {mean_score}\ncv std: {std_score}')
 
-    return all_scores, mean_score, std_score
+    return all_scores, mean_score, std_score, holdout_score
 
 
-def validate_multiple_models(estimators, X, y, metric, seeds, n_splits, n_loops, verbose):
+
+def validate_multiple_models(estimators, X, y, metric, seeds, X_holdout=None, y_holdout=None, n_splits=5, n_loops=50, verbose=False):
     """Validate multiple models using model_validator n_models times.
 
     Args:
@@ -181,21 +196,37 @@ def validate_multiple_models(estimators, X, y, metric, seeds, n_splits, n_loops,
         y (numpy ndarray): labels corresponding to X.
         metric (func): metric func(y_pred, y_true) -> score (float).
         seeds (list / numpy ndarray): list of random seeds, for each loop of n_loops.
+        X_holdout (numpy ndarray): array for holdout score (default None).
+        y_holdout (numpy ndarray): labels corresponding to X_holdout (default None).
         n_splits (int): number of splits in cross-validation.
         n_loops (int): number of cross-validation loops.
 
-    Yields:
-        all_scores (numpy ndarray): n_loops x n_folds arrays of scores.
-        mean_score (float): mean score.
-        std_score (float): standart deviation of score.
+    Returns:
+        pandas DataFrame: contains score's mean and std for each model.
 
     """
-    for est in estimators:
-        all_scores, mean, std = smodels.model_validator(est, X, y, metric, seeds, n_splits, n_loops)
+    # Init array for means and stds of estimator's scores.
+    scores_res = np.zeros((3, len(estimators)))
+
+    for ix, est in enumerate(estimators):
+        _, mean, std, holdout_score = model_validator(est, X, y, metric, seeds, X_holdout, y_holdout, n_splits, n_loops)
         if verbose:
             print(f'{est.__class__.__name__}\nScore mean: {mean}\nScore std: {std}\n=========')
 
-        yield all_scores, mean, std
+        scores_res[0, ix] = mean
+        scores_res[1, ix] = std
+        scores_res[2, ix] = holdout_score
+
+    # Get estimators names for finall DataFrame columns.
+    list_of_est_names = [est.__class__.__name__ for est in estimators]
+
+    # Get DataFrame with score info (mean, std) and holdout score.
+    result_df = pd.DataFrame(data = scores_res, columns = list_of_est_names, index = ['mean', 'std', 'holdout'])
+
+    # If holdount didn't provided - drop holdout row.
+    result_df.dropna(inplace=True)
+
+    return result_df
 
 
 class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):

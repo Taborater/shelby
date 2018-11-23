@@ -15,7 +15,6 @@ Usage example:
     num_nans_filled_df = NumNanFiller(num_cols, method='mean').fit_transform(df)
 
     ``
-
 """
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -109,15 +108,15 @@ class CatNanFiller(BaseEstimator, TransformerMixin):
 
 
 class NumNanFiller(BaseEstimator, TransformerMixin):
-    """Filling NaNs in numerical columns with mean or median value."""
+    """Filling NaNs in numerical columns with mean, median or custom value."""
 
     def __init__(self, num_cols, method='mean'):
         """NumNanFiller __init__.
 
         Args:
             num_cols (list): ;ist of numerical columns names.
-            method (str): specifies how to fill NaNs (default 'mean')
-            ['mean' or 'median'].
+            method (str or float or int): specifies how to fill NaNs (default 'mean')
+            ['mean', 'median', int, float].
 
         """
         # Define known methods list
@@ -126,7 +125,7 @@ class NumNanFiller(BaseEstimator, TransformerMixin):
         self.num_cols = num_cols
 
         # Raise assertion if passed method of filling NaNs is unknow
-        assert self.method in self.methods, f'Unknow method(use one of {self.methods})'
+        assert (self.method in self.methods) or (type(self.method) in [float, int]), f'Unknow method(use number or one of {self.methods})'
 
 
     def transform(self, data):
@@ -146,6 +145,10 @@ class NumNanFiller(BaseEstimator, TransformerMixin):
         elif self.method == 'median':
             for col in self.num_cols:
                 data[col] = data[col].fillna(data[col].median())
+
+        else:
+            for col in self.num_cols:
+                data[col] = data[col].fillna(self.method)
 
         return data
 
