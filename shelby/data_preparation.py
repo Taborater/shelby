@@ -141,7 +141,7 @@ class CatDummifier(BaseEstimator, TransformerMixin):
         self.drop_first = drop_first
 
     def transform(self, data):
-        """Dummifier categorical columns
+        """Dummifier categorical columns.
 
         Args:
             data (pandas.DataFrame): DataFrame containing data for generating dummies.
@@ -176,13 +176,14 @@ class CatLabelEncoder(BaseEstimator, TransformerMixin):
 
 
     def transform(self, data):
-        """Encode categorical columns
+        """Encode categorical columns.
 
         Args:
             data (pandas.DataFrame): DataFrame containing data for encoding.
 
         Returns:
             data (pandas.DataFrame): DataFrame with encoded categorical columns.
+
         """
         # Iterate  through columns to encode
         for col in self.cat_columns:
@@ -208,6 +209,7 @@ class Scaler(BaseEstimator, TransformerMixin):
             columns_to_scale (list): list containing names of columns to scale.
             method (str): specifies name of scaling method (default 'standart_scaler')
             ['standart_scaler', 'minmax', 'robust'].
+
         """
         self.methods = ['standart_scaler', 'minmax', 'robust']
         self.columns_to_scale = columns_to_scale
@@ -225,6 +227,7 @@ class Scaler(BaseEstimator, TransformerMixin):
 
         Returns:
             data (pandas.DataFrame): DataFrame with scaled numerical columns.
+
         """
         if self.method == 'standart_scaler':
             for col in self.columns_to_scale:
