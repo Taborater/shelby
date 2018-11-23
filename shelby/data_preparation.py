@@ -10,6 +10,9 @@ This module contains custom transformers (based on sklearn TransformerMixin) for
 - Data scaler for numeric columns.
 - Skew remover for numeric columns.
 - Array extractor.
+
+Todo:
+    ?* Move methods from __init__ doc to class doc
 """
 
 import pandas as pd
@@ -108,8 +111,8 @@ class NumClipper(BaseEstimator, TransformerMixin):
         for col in self.columns_to_clip:
 
             # Define quantile values
-            low_val = data[col].quantile(low_q)
-            hight_val = data[col].quantile(hight_q)
+            low_val = data[col].quantile(self.low_q)
+            hight_val = data[col].quantile(self.hight_q)
 
             # Clip data
             data[[col]] = data[[col]].clip(low_val, hight_val)
@@ -308,6 +311,8 @@ class SkewRemover(BaseEstimator, TransformerMixin):
 
 class ArraysExtractor(BaseEstimator, TransformerMixin):
     """Spliting stacked train and test pandas DataFrames into X_train, y_train, X_finall numpy arrays.
+
+    It's convenient to finish preprocessing pipeline with this transformer.
 
     Usage example:
         `X, y, X_finall = ArraysExtractor(target_col, test_index).fit_transform(full_df)`

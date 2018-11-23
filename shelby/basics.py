@@ -25,6 +25,9 @@ def separate_cols(df, unique_thresh=10, return_probably_cat=True):
     If return_probably_cat=True - return one more subset:
     probably categorical columns (dtype is 'object' but #unique_vals(col) > unique_thres).
 
+    It's important to use type checker from data_cleaning after this func, because some categorical columns
+    may appear as 'int' or 'float' columns, type checker will fix it for given DataFrame.
+
     Args:
         df (pandas.DataFrame): df whose columns will be divided.
         unique_thresh (int): categorical threshold [IF #unique_vals(col) <= unique_thres THEN col is categorical].

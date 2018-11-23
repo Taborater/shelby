@@ -13,9 +13,6 @@ Usage example:
 	# writing
 	shelby.pull_push_data.write_data(y_pred, index_col='Id', fname='predicted', sample_path='sample.csv')
 	``
-
-Todo:
-	* Add check if pred dir exists (if no - create)
 """
 import pandas as pd
 import os
@@ -49,13 +46,14 @@ def read_data(train_path="./data/train.csv", test_path='./data/test.csv', index_
 
 
 
-def write_data(y_pred, index_col, file_name, sample_path='./data/sample_submission.csv'):
+def write_data(y_pred, index_col, file_name, dir_name = 'preds', sample_path='./data/sample_submission.csv'):
 	"""Write pandas DataFrame into csv file
 
 	Args:
 		y_pred (ndarray): array of predicted values.
 		index_col (str): index column name.
 		file_name (str): new file name.
+		dir_name (sts): name of the directory for predictions (if not exists - will be created).
 		sample_path (str): path to sample submission csv file
 
 	"""
@@ -72,5 +70,19 @@ def write_data(y_pred, index_col, file_name, sample_path='./data/sample_submissi
 	# Replace values in sample submission pandas DataFrame with predicted values
 	submission.values[:] = y_pred.reshape(-1,1)
 
-	# Save it
-	submission.to_csv('./preds/' + file_name + '.csv')
+	# Check if directory exists - create if not
+	if not os.path.exists('./' + dir_name + '/'):
+		os.makedirs('./' + dir_name + '/')
+
+	# Save predictions
+	submission.to_csv('./' + dir_name + '/' + file_name + '.csv')
+
+
+
+
+
+
+
+
+
+
