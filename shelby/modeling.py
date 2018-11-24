@@ -13,7 +13,6 @@ This module contains functions and custom estimators (based on sklearn Mixins) f
 Todo:
     * Extend model_validator with different cv strategies (stratified and etc.).
     * Use model_validator as grid_search_model_tunner cv_strategy.
-    * get_oofs as custom estimators for easy validation
 """
 
 from sklearn.model_selection import GridSearchCV, cross_val_score, KFold
@@ -70,12 +69,12 @@ def get_oof_prediction(estimator, X_train, y_train, X_test, cv_strategy):
     ntrain = X_train.shape[0]
     ntest = X_test.shape[0]
 
-    # Init zero arrays for finall predictions.
+    # Init zero arrays for finall predictions
     oof_train = np.zeros((ntrain, ))
     oof_test = np.zeros((ntest, ))
 
     # Init empty array for oof_test_kf predictions
-    # (later the result will be averaged to get oof_test).
+    # (later the result will be averaged to get oof_test)
     oof_test_kf = np.empty((nfolds, ntest))
 
     for i, (train_index, test_index) in enumerate(cv_strategy.split(X_train)):
@@ -90,7 +89,7 @@ def get_oof_prediction(estimator, X_train, y_train, X_test, cv_strategy):
         # Predict labels for all test items
         oof_test_kf[i, :] = estimator.predict(X_test)
 
-    # Average predictions vertically (axis=0), through folds.
+    # Average predictions vertically (axis=0), through folds
     oof_test = oof_test_kf.mean(axis=0)
 
     # Reshape to get column array
@@ -116,12 +115,12 @@ def get_oof_array(estimators_array, X_train, y_train, X_test, cv_strategy):
     ntrain = X_train.shape[0]
     ntest = X_test.shape[0]
 
-    # Init zero arrays for finall predictions.
+    # Init zero arrays for finall predictions
     oof_train_array = np.zeros((ntrain, nmodels))
     oof_test_array = np.zeros((ntest, nmodels))
 
     for i, estimator in enumerate(estimators_array):
-        # Use get_oof_prediction for each estimator.
+        # Use get_oof_prediction for each estimator
         oof_train, oof_test = get_oof_prediction(estimator, X_train,
                                                  y_train, X_test, cv_strategy)
 
@@ -175,7 +174,7 @@ def model_validator(estimator, X, y, metric, seeds, X_holdout=None, y_holdout=No
         if verbose:
             print(f'holdout score: {holdout_score}')
 
-    # Create array from list and eval statistics.
+    # Create array from list and eval statistics
     all_scores = np.array(all_scores)
     mean_score = all_scores.mean()
     std_score = all_scores.std()
@@ -205,7 +204,7 @@ def validate_multiple_models(estimators, X, y, metric, seeds, X_holdout=None, y_
         pandas DataFrame: contains score's mean and std for each model.
 
     """
-    # Init array for means and stds of estimator's scores.
+    # Init array for means and stds of estimator's scores
     scores_res = np.zeros((3, len(estimators)))
 
     for ix, est in enumerate(estimators):
@@ -217,13 +216,13 @@ def validate_multiple_models(estimators, X, y, metric, seeds, X_holdout=None, y_
         scores_res[1, ix] = std
         scores_res[2, ix] = holdout_score
 
-    # Get estimators names for finall DataFrame columns.
+    # Get estimators names for finall DataFrame columns
     list_of_est_names = [est.__class__.__name__ for est in estimators]
 
-    # Get DataFrame with score info (mean, std) and holdout score.
+    # Get DataFrame with score info (mean, std) and holdout score
     result_df = pd.DataFrame(data = scores_res, columns = list_of_est_names, index = ['mean', 'std', 'holdout'])
 
-    # If holdount didn't provided - drop holdout row.
+    # If holdount didn't provided - drop holdout row
     result_df.dropna(inplace=True)
 
     return result_df
@@ -244,11 +243,8 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def fit(self, X, y):
         """Fit AveragingModels estimator"""
 
-        # Clone models
-        self.estimators_ = [clone(x) for x in self.estimators]
-
         # Train cloned base models
-        for est in self.estimators_:
+        for est in self.estimators:
             est.fit(X, y)
 
         return self
@@ -257,9 +253,9 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def predict(self, X):
         """Make predictions using base models and average them."""
 
-        # Stack predictions in columns.
+        # Stack predictions in columns
         predictions = np.column_stack([
-            est.predict(X) for est in self.estimators_
+            est.predict(X) for est in self.estimators
         ])
 
         # Average horizontaly

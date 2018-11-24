@@ -20,14 +20,14 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class TypesChecker(BaseEstimator, TransformerMixin):
+class TypesCorrector(BaseEstimator, TransformerMixin):
     """Correcting pandas DataFrame columns types using predefined lists of number and categorical columns."""
 
     def __init__(self, num_cols, cat_cols):
         """TypeChecker __init__.
 
         Args:
-            num_cols (list): list of number columns names.
+            num_cols (list): list of numerical columns names.
             cat_cols (list): list of categorical columns names.
 
         """

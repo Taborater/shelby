@@ -2,9 +2,9 @@
 """Basics
 (part of shelby package)
 
-This module contains basic table data manipultions: separate_cols function separate
-set of columns into two subsets - number columns and categorial columns, train_test_stack
-function stacks two pandas DataFrames verticaly.
+This module contains basic table data manipulations:
+- separate_cols function for separating set of columns into two subsets - numerical columns and categorical columns.
+- train_test_stack function for stacking two pandas DataFrames verticaly.
 
 Usage example:
     ``
@@ -19,13 +19,13 @@ Usage example:
 import pandas as pd
 
 
-def separate_cols(df, unique_thresh=10, return_probably_cat=True):
-    """Separate pandas DataFrame columns set into two subsets: categorical columns and number columns.
+def separate_cols(df, unique_thresh=10, return_probably_cat=False):
+    """Separate pandas DataFrame columns set into two subsets: categorical columns and numerical columns.
 
     If return_probably_cat=True - return one more subset:
-    probably categorical columns (dtype is 'object' but #unique_vals(col) > unique_thres).
+    probably categorical columns (when dtype is 'object' but #unique_vals(col) > unique_thres).
 
-    It's important to use type checker from data_cleaning after this func, because some categorical columns
+    It's important to use TypesCorrector from data_cleaning after this func, because some categorical columns
     may appear as 'int' or 'float' columns, type checker will fix it for given DataFrame.
 
     Args:
@@ -35,7 +35,7 @@ def separate_cols(df, unique_thresh=10, return_probably_cat=True):
 
     Returns:
         cat_cols (list): list of categorical columns.
-        num_cols (list): list of number columns.
+        num_cols (list): list of numerical columns.
         [optional] probably_cat_cols (list): list of probably categorical columns.
 
     """
@@ -56,11 +56,11 @@ def separate_cols(df, unique_thresh=10, return_probably_cat=True):
         elif df[col].dtype == 'O' and df[col].nunique() > unique_thresh:
             probably_cat.append(col)
 
-        # Case3: number column which is probably categorical
+        # Case3: numerical column which is probably categorical
         elif df[col].dtype != 'O' and df[col].nunique() < unique_thresh:
             probably_cat.append(col)
 
-        # Case4: number column
+        # Case4: numerical column
         else:
             num_cols.append(col)
 
@@ -73,19 +73,18 @@ def separate_cols(df, unique_thresh=10, return_probably_cat=True):
         return cat_cols, num_cols
 
 
-
 def train_test_stack(df_train, df_test, target_col_name):
     """Stacks two pandas DataFrames verticaly.
 
     Args:
         df_train (pandas.DataFrame).
         df_test (pandas.DataFrame).
-        target_col_name (str): name of target column, necessary to remove target column from train
+        target_col_name (str): name of target column, necessary to remove target column from train.
 
     Returns:
         full_df (pandas.DataFrame): resulting pandas DataFrame.
         target_col (numpy ndarray): array containing df_train target column values.
-        test_start_index (int): indicates from which index in full_df df_test values appears(for later separation)
+        test_start_index (int): indicates from which index in full_df df_test values appears(for later separation).
 
     """
     full_df = pd.concat([df_train.drop(target_col_name, axis=1), df_test])

@@ -24,7 +24,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 
 
 class NumBinner(BaseEstimator, TransformerMixin):
-    """Binnig data in specified numerical columns values using 4 uniform quantiles (from 0 to 1).
+    """Binnig data in specified numerical columns values using 3 uniform quantiles (from 0 to 1).
 
     Usage example:
         `new_cat_cols, new_num_cols, modified_df = NumBinner(columns_to_bin, cat_cols, num_cols).fit_transform(df)`

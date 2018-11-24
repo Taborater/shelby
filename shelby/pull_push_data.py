@@ -18,7 +18,7 @@ import pandas as pd
 import os
 
 def read_data(train_path="./data/train.csv", test_path='./data/test.csv', index_col=None):
-	"""Read train and test data from csv files into pandas DataFrames
+	"""Read train and test data from csv files into pandas DataFrames.
 
 	Args:
 		train_path (str): path to train.csv from current dir (default './data/train.csv').
@@ -31,7 +31,7 @@ def read_data(train_path="./data/train.csv", test_path='./data/test.csv', index_
 
 	"""
 
-	# Get full path of the current dir
+	# Get full path to the current dir
 	file_dir = os.path.dirname(os.path.realpath('__file__'))
 
 	# Combine train and test paths with full dir path
@@ -47,14 +47,14 @@ def read_data(train_path="./data/train.csv", test_path='./data/test.csv', index_
 
 
 def write_data(y_pred, index_col, file_name, dir_name = 'preds', sample_path='./data/sample_submission.csv'):
-	"""Write pandas DataFrame into csv file
+	"""Write pandas DataFrame into csv file.
 
 	Args:
 		y_pred (ndarray): array of predicted values.
 		index_col (str): index column name.
 		file_name (str): new file name.
 		dir_name (sts): name of the directory for predictions (if not exists - will be created).
-		sample_path (str): path to sample submission csv file
+		sample_path (str): path to sample submission csv file.
 
 	"""
 
