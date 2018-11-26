@@ -8,3 +8,9 @@ __pycache__/
 test.ipynb
 .ipynb_checkpoints/
 test_data/
+
+
+MANIFEST
+dist/
+setup.cfg
+setup.py

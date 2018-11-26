@@ -20,6 +20,16 @@ Asperities:
 		import os
 		os.environ['KMP_DUPLICATE_LIB_OK']='True'
 """
+from shelby.basics import separate_cols, train_test_stack
+from shelby.pull_push_data import read_data, write_data
+from shelby.data_cleaning import CatNanFiller, NumNanFiller, TypesCorrector
+from shelby.data_preparation import ArraysExtractor, CatDummifier, CatLabelEncoder, \
+									MinMaxScaler, NumBinner, NumClipper, Scaler, \
+									SkewRemover
+
+from shelby.modeling import grid_search_model_tunner, get_oof_prediction, get_oof_array, \
+ 							model_validator, validate_multiple_models, AveragingModels
+
 
 if __name__ == '__main__':
 	print('Shelby - for tabular data processing')
