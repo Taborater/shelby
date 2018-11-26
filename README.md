@@ -11,5 +11,5 @@ Inspired with this [article](https://habr.com/company/ods/blog/426227/).
 
 ## Usage
 
-Package can be installed with pip:
+Package can be installed with pip:  
 `pip install shelby`
