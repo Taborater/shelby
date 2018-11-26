@@ -39,6 +39,7 @@ def grid_search_model_tunner(estimator, X, y, cv_strategy, metric, params, verbo
     if verbose:
         print(f'Get {estimator.__class__.__name__}\nTune params....')
 
+    # Make scorer fot GridSearchCV
     scorer = make_scorer(metric)
     gs = GridSearchCV(estimator, params, scoring=scorer, cv=cv_strategy,
                       n_jobs=-1)
